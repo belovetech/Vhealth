@@ -37,7 +37,6 @@ menuToggle.addEventListener('click', () => {
     "Huntington's disease",
     "Amyotrophic lateral sclerosis (ALS)",
     "HIV/AIDS",
-    "Malaria",
     "Tuberculosis",
     "COVID-19"
   ];
@@ -52,7 +51,7 @@ menuToggle.addEventListener('click', () => {
   }
 
   var swiperTwo = new Swiper(".swiperTwo", {
-    slidesPerView: 3,
+    slidesPerView: 6,
     grid: {
       rows: 3,
     },
