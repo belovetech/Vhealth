@@ -18,45 +18,21 @@ menuToggle.addEventListener('click', () => {
 
 
 
-    // health condition swipperTwo
-    var illnesses = [
-    "Heart disease",
-    "Stroke",
-    "Lung cancer",
-    "Alzheimer's disease",
-    "Diabetes",
-    "Kidney disease",
-    "Liver disease",
-    "Depression",
-    "Schizophrenia",
-    "Bipolar disorder",
-    "Eating disorders",
-    "Autism spectrum disorders",
-    "Multiple sclerosis",
-    "Parkinson's disease",
-    "Huntington's disease",
-    "Amyotrophic lateral sclerosis (ALS)",
-    "Tuberculosis",
-    "COVID-19"
-  ];
 
-  var swiperTwoWrapper = document.querySelector(".swiperTwo .swiper-wrapper");
 
-  for (var i = 1; i < illnesses.length; i++) {
-    var slide = document.createElement("div");
-    slide.classList.add("swiper-slide");
-    slide.textContent = illnesses[i];
-    swiperTwoWrapper.appendChild(slide);
+const options = {
+  method: 'GET',
+  headers: {
+    'X-RapidAPI-Key': '4be9eb381cmsh95230f305c0e104p122e69jsn426127a34fd0',
+    'X-RapidAPI-Host': 'community-healthcaregov.p.rapidapi.com'
   }
+};
 
-  var swiperTwo = new Swiper(".swiperTwo", {
-    slidesPerView: 6,
-    grid: {
-      rows: 3,
-    },
-    spaceBetween: 30,
-    pagination: {
-      el: ".swiper-pagination",
-      clickable: true,
-    },
-  });
+fetch('https://community-healthcaregov.p.rapidapi.com/api/glossary.json', options)
+  .then(response => response.json())
+  .then(response => {
+    // Store response in local storage
+    localStorage.setItem('healthData', JSON.stringify(response));
+    console.log(response)
+  })
+  .catch(err => console.error(err));

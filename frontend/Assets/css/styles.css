@@ -120,47 +120,6 @@ header {
 }
 
 
-/* health Condition */
-  .swiperTwo {
-      position: relative;
-      height: 100%;
-      overflow: hidden;
-  }
-
-  .swiperTwo {
-      background: var(--white);
-      font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-      font-size: 14px;
-      color: #000;
-      margin: 0;
-    padding: 1rem;
-  }
-
- .swiperTwo .swiper {
-      width: 100%;
-      height: 100%;
-      margin-left: auto;
-      margin-right: auto;
-      
-  }
-
- .swiperTwo .swiper-slide {
-      text-align: center;
-      font-size: 18px;
-      background: #fff;
-    height: calc((100% - 60px) / 3) !important;
-
-      /* Center slide text vertically */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-  }
-
-.itemOne{
-    border: 2px solid red;
-    
-}
 
 
 
