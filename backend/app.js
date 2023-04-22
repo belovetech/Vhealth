@@ -3,6 +3,8 @@ const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
 
+const authRouter = require('./routes/userRouter');
+
 // APP
 const app = express();
 
@@ -19,6 +21,9 @@ app.use(cors(corOptions));
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+app.use('/auth', authRouter);
+
 app.use('*', (req, res, next) =>
   res.status(404).json({ Error: 'This route was not defined on this server' })
 );
