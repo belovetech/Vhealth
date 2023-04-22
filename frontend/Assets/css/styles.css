@@ -63,6 +63,7 @@ header {
 .links a:hover {
     color: #1abc9c;
 }
+/* sub */
 
 .menu-toggle {
     display: none;
@@ -113,13 +114,51 @@ header {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    /* filter: blur(2px); */
 }
 
 
+/* health Condition */
+  .swiperTwo {
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+  }
 
+  .swiperTwo {
+      background: #eee;
+      font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      color: #000;
+      margin: 0;
+      padding: 0;
+  }
 
+ .swiperTwo .swiper {
+      width: 100%;
+      height: 100%;
+      margin-left: auto;
+      margin-right: auto;
+  }
 
+ .swiperTwo .swiper-slide {
+      text-align: center;
+      font-size: 18px;
+      background: #fff;
+    height: calc((100% - 60px) / 3) !important;
 
+      /* Center slide text vertically */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+  }
+
+.itemOne{
+    border: 2px solid red;
+    
+}
 
 
 
