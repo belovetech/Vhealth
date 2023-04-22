@@ -97,7 +97,6 @@ class AuthController {
         return res.status(403).json({ error: 'Forbidden' });
       }
       const user = jwt.verify(token, process.env.JWT_SECRET);
-      console.log(user);
       if (valid !== user.userId) {
         return res.status(403).json({ error: 'Forbidden' });
       }

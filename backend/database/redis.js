@@ -4,13 +4,14 @@ const { promisify } = require('util');
 class RedisClient {
   constructor() {
     this.client = createClient({
+      legacyMode: true,
       url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
     });
 
     this.client.on('error', (err) => {
       console.log(`ERROR: ${err}`);
     });
-
+    // await client.connect();
     this.clientGet = promisify(this.client.get).bind(this.client);
   }
 
