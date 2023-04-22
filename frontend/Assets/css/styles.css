@@ -128,12 +128,12 @@ header {
   }
 
   .swiperTwo {
-      background: #eee;
+      background: var(--white);
       font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
       font-size: 14px;
       color: #000;
       margin: 0;
-      padding: 0;
+    padding: 1rem;
   }
 
  .swiperTwo .swiper {
@@ -141,6 +141,7 @@ header {
       height: 100%;
       margin-left: auto;
       margin-right: auto;
+      
   }
 
  .swiperTwo .swiper-slide {
@@ -153,6 +154,7 @@ header {
       display: flex;
       justify-content: center;
       align-items: center;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   }
 
 .itemOne{

@@ -36,7 +36,6 @@ menuToggle.addEventListener('click', () => {
     "Parkinson's disease",
     "Huntington's disease",
     "Amyotrophic lateral sclerosis (ALS)",
-    "HIV/AIDS",
     "Tuberculosis",
     "COVID-19"
   ];
