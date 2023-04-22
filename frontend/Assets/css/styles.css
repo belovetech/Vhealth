@@ -76,6 +76,7 @@ header {
   .swiperOne {
       position: relative;
       height: 100%;
+      overflow: hidden;
   }
 
   .swiperOne {
@@ -107,6 +108,21 @@ header {
       height: 100%;
       object-fit: cover;
   }
+.swiperOne .swiper-slide .text-body {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -150,4 +166,10 @@ header {
         background-color: #ccc;
         margin: 20px 0;
     }
+
+    /* carousel */
+      .swiperOne {
+      height: 450px;
+  }
+
 }
