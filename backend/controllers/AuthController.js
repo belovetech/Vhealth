@@ -92,7 +92,6 @@ class AuthController {
         return res.status(401).json({ error: 'Unauthorised' });
       }
       const valid = await redisClient.get(`auth_${token}`);
-      console.log(valid);
       if (valid === null) {
         return res.status(403).json({ error: 'Forbidden' });
       }
@@ -101,8 +100,8 @@ class AuthController {
         return res.status(403).json({ error: 'Forbidden' });
       }
       await redisClient.del(`auth_${token}`);
-      res.status(200).end();
       res.cookie('token', 'loggedout', { maxAge: 10 });
+      return res.status(200).end();
     } catch (error) {
       console.log(error);
       if (error.message === 'invalid signature') {
