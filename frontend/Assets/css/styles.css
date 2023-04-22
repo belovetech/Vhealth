@@ -26,7 +26,7 @@ body {
 :root{
     --black : #000;
     --white :#fff;
-    --main-color : #1abc9c;
+    --main-color : #adf;
     --deep-black : #103783;
 
 }
@@ -61,7 +61,7 @@ header {
 }
 
 .links a:hover {
-    color: var(--main-color);
+    color: #1abc9c;
 }
 
 .menu-toggle {
@@ -70,6 +70,50 @@ header {
     color: #333;
     cursor: pointer;
 }
+
+
+/* main carousel */
+  .swiperOne {
+      position: relative;
+      height: 100%;
+  }
+
+  .swiperOne {
+      background: #eee;
+      font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      color: #000;
+      margin: 0;
+      padding: 0;
+  }
+
+ .swiperOne .swiper {
+      width: 100%;
+      height: 100%;
+  }
+
+.swiperOne  .swiper-slide {
+      text-align: center;
+      font-size: 18px;
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+  }
+
+ .swiperOne  .swiper-slide img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+  }
+
+
+
+
+
+
+
 
 @media screen and (max-width: 768px) {
     .menu-toggle {
@@ -87,13 +131,12 @@ header {
         padding: 20px 0;
         background-color: #fff;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-         transition: transform 1.3s ease-in-out;
-    transform: translateY(100%);
+        z-index: 9999;
     }
 
     .links.active {
         display: flex;
-        transform: translateY(0%);
+        
     }
 
     .links a {
