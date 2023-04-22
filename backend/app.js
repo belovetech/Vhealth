@@ -3,7 +3,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
 
-const authRouter = require('./routes/userRouter');
+const authRouter = require('./routes/authRouter');
 
 // APP
 const app = express();

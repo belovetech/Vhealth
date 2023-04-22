@@ -2,15 +2,15 @@ const mongoose = require('mongoose');
 
 const ScheduleSchema = new mongoose.Schema({
   providerId: String,
-  patientId: String,
-  date: String,
+  userId: String,
+  date: Date,
   time: Date,
   status: {
     type: String,
     enum: {
-      values: ['availability', 'on-going', 'non-availability'],
+      values: ['pending', 'held', 'cancelled'],
     },
-    default: 'availability',
+    default: 'pending',
   },
 });
 
