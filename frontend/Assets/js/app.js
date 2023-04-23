@@ -23,16 +23,14 @@ menuToggle.addEventListener('click', () => {
 const options = {
   method: 'GET',
   headers: {
-    'X-RapidAPI-Key': '4be9eb381cmsh95230f305c0e104p122e69jsn426127a34fd0',
-    'X-RapidAPI-Host': 'community-healthcaregov.p.rapidapi.com'
+    'Content-Type': 'application/json'
   }
 };
 
-fetch('https://community-healthcaregov.p.rapidapi.com/api/glossary.json', options)
+const search = 'breast+cancer'; // Replace with your search query
+const url = `https://clinicaltrials.gov/api/query/full_studies?expr=${search}&min_rnk=1&max_rnk=100&fmt=json`;
+
+fetch(url, options)
   .then(response => response.json())
-  .then(response => {
-    // Store response in local storage
-    localStorage.setItem('healthData', JSON.stringify(response));
-    console.log(response)
-  })
-  .catch(err => console.error(err));
+  .then(data => console.log(data))
+  .catch(error => console.error(error));
