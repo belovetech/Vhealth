@@ -1,41 +1,55 @@
 const sha1 = require('sha1');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const Patient = require('../models/Patient');
 const redisClient = require('../database/redis');
 const generateJWToken = require('../utils/generateJWToken');
 const validator = require('email-validator');
+const makeValidation = require('@withvoid/make-validation');
+const formatResponse = require('../utils/formatResponse');
 
 class AuthController {
   static async signup(req, res, next) {
     try {
-      const { email, password } = req.body;
+      const validation = makeValidation((types) => ({
+        payload: req.body,
+        checks: {
+          firstName: { type: types.string },
+          lastName: { type: types.string },
+          email: { type: types.string },
+          password: { type: types.string },
+          passwordConfirmation: { type: types.string },
+        },
+      }));
 
-      if (!email) {
-        return res.status(400)({ message: 'Provide valid email' });
+      if (!validation.success) {
+        return res.status(400).json({ ...validation });
       }
 
-      if (!password || password.length < 8) {
-        return res.status(400)({ message: 'Provide valid password' });
-      }
+      const { firstName, lastName, email, password, passwordConfirmation } =
+        req.body;
 
-      const userExist = await User.findOne({ email });
-      if (userExist) {
+      const patientExist = await Patient.findOne({ email });
+      if (patientExist) {
         return res
           .status(400)
-          .json({ message: 'User with that email exist, Kindly login' });
+          .json({ message: 'Patient with that email exist, Kindly login' });
       }
 
-      const user = await User.create({ email, password });
+      const patient = await Patient.create({
+        firstName,
+        lastName,
+        email,
+        password,
+        passwordConfirmation,
+      });
       return res.status(201).json({
         status: 'success',
-        data: {
-          id: user._id,
-          email,
-          password: user.password,
-        },
+        patient: formatResponse(patient),
       });
     } catch (error) {
-      console.log(error);
+      if (error.name === 'ValidationError') {
+        return res.status(400).json({ error: error.message });
+      }
       return res.status(500).json({ error: 'Server Error' });
     }
   }
@@ -43,22 +57,28 @@ class AuthController {
   static async login(req, res, next) {
     const { email, password } = req.body;
     try {
-      if (!email || !password) {
+      const validation = makeValidation((types) => ({
+        payload: req.body,
+        checks: {
+          email: { type: types.string },
+          password: { type: types.string },
+        },
+      }));
+
+      if (!validation.success) {
+        return res.status(400).json({ ...validation });
+      }
+
+      let patient = await Patient.findOne({ email });
+      if (!patient) {
+        return res.status(400).json({ error: 'patient not found' });
+      }
+      patient = await Patient.findOne({ email, password: sha1(password) });
+      if (!patient) {
         return res.status(400).json({ error: 'Invalid login credentials' });
       }
-      if (!validator.validate(email)) {
-        return res.status(400).json({ error: 'Invalid email' });
-      }
-      let user = await User.findOne({ email });
-      if (!user) {
-        return res.status(400).json({ error: 'User not found' });
-      }
-      user = await User.findOne({ email, password: sha1(password) });
-      if (!user) {
-        return res.status(400).json({ error: 'Invalid login credentials' });
-      }
-      const token = generateJWToken(user._id.toString());
-      await redisClient.set(`auth_${token}`, user._id.toString(), 60 * 60);
+      const token = generateJWToken(patient._id.toString());
+      await redisClient.set(`auth_${token}`, patient._id.toString(), 60 * 60);
 
       res.cookie('token', token, {
         maxAge: 60 * 60,
@@ -67,10 +87,7 @@ class AuthController {
       });
       return res.status(200).send({
         token,
-        data: {
-          id: user._id,
-          email,
-        },
+        Patient: formatResponse(patient),
       });
     } catch (error) {
       console.log(error);
@@ -95,13 +112,13 @@ class AuthController {
       if (valid === null) {
         return res.status(403).json({ error: 'Forbidden' });
       }
-      const user = jwt.verify(token, process.env.JWT_SECRET);
-      if (valid !== user.userId) {
+      const patient = jwt.verify(token, process.env.JWT_SECRET);
+      if (valid !== patient.patientId) {
         return res.status(403).json({ error: 'Forbidden' });
       }
       await redisClient.del(`auth_${token}`);
       res.cookie('token', 'loggedout', { maxAge: 10 });
-      return res.status(200).end();
+      return res.status(200).json({ message: 'You have sucessfully logout' });
     } catch (error) {
       console.log(error);
       if (error.message === 'invalid signature') {
@@ -135,13 +152,13 @@ class AuthController {
       }
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const currentUser = await User.findOne({
-        _id: decoded.userId,
+      const currentPatient = await Patient.findOne({
+        _id: decoded.patientId,
       });
-      if (!currentUser) {
+      if (!currentPatient) {
         return res.status(401).json({ error: 'Unauthorised' });
       }
-      req.user = currentUser;
+      req.patient = formatResponse(currentPatient);
       next();
     } catch (error) {
       if (error.message === 'invalid signature') {

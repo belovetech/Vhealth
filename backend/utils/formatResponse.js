@@ -1,7 +1,8 @@
 const formatResponse = (object) => {
   const User = {
     id: object._id,
-    fullName: object.firstName,
+    firstName: object.firstName,
+    lastName: object.lastName,
     email: object.email,
     role: object.role,
   };
