@@ -13,6 +13,8 @@ const ProviderSchema = new mongoose.Schema({
   },
   bio: String,
   specialty: String,
+  location: String,
+  availabilty: Array,
   yearOfExperience: Number,
   numberOfPatientAttendedTo: Number,
   image: String,

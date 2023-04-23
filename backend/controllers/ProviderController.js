@@ -2,6 +2,7 @@ const Provider = require('../models/Provider');
 const makeValidation = require('@withvoid/make-validation');
 const APIfeatures = require('../utils/apiFeatures');
 const formatProviderResponse = require('../utils/formatProvider');
+const capitalize = require('../utils/capitalize');
 
 class ProviderController {
   static async createProvider(req, res, next) {
@@ -12,6 +13,7 @@ class ProviderController {
           fullName: { type: types.string },
           bio: { type: types.string },
           specialty: { type: types.string },
+          location: { type: types.string },
           yearOfExperience: { type: types.string },
           numberOfPatientAttendedTo: { type: types.string },
         },
@@ -25,6 +27,7 @@ class ProviderController {
         fullName,
         bio,
         specialty,
+        location,
         yearOfExperience,
         numberOfPatientAttendedTo,
       } = req.body;
@@ -32,7 +35,8 @@ class ProviderController {
       const provider = await Provider.create({
         fullName,
         bio,
-        specialty,
+        specialty: capitalize(specialty),
+        location: capitalize(location),
         yearOfExperience,
         numberOfPatientAttendedTo,
       });
@@ -46,7 +50,12 @@ class ProviderController {
 
   static async getAllProvider(req, res, next) {
     try {
-      const features = new APIfeatures(Provider.find(), req.query)
+      const query = {};
+      for (let [key, value] of Object.entries(req.query)) {
+        query[key] = capitalize(value);
+      }
+
+      const features = new APIfeatures(Provider.find(), query)
         .filter()
         .sort()
         .limitFields()

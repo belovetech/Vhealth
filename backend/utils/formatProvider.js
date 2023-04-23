@@ -4,6 +4,8 @@ const formatProviderResponse = (object) => {
     fullName: object.fullName,
     bio: object.bio,
     specialty: object.specialty,
+    location: object.location,
+    availability: object.availability,
     yearOfExperience: object.yearOfExperience,
     numberOfPatientAttendedTo: object.numberOfPatientAttendedTo,
   };
