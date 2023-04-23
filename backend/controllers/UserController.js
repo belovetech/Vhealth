@@ -1,80 +1,80 @@
-const Patient = require('../models/Patient');
+const User = require('../models/User');
 const formatResponse = require('../utils/formatResponse');
 const filterFields = require('../utils/filterFields');
 const makeValidation = require('@withvoid/make-validation');
 
-class PatientController {
-  static async createPatient(req, res, next) {
+class UserController {
+  static async createUser(req, res, next) {
     return res.status(500).json({
       message:
         'This route is  not defined. Kindly, use /signup to create account',
     });
   }
 
-  static async getAllPatients(req, res, next) {
+  static async getAllUsers(req, res, next) {
     try {
-      const Patients = await Patient.find();
-      const data = Patients.map((Patient) => formatResponse(Patient));
+      const users = await User.find();
+      const data = users.map((User) => formatResponse(User));
 
       return res.status(200).json({
-        results: Patients.length,
-        Patients: data,
+        results: users.length,
+        users: data,
       });
     } catch (err) {
       return res.status(500).json({ error: 'Server Error' });
     }
   }
 
-  static async getPatient(req, res, next) {
+  static async getUser(req, res, next) {
     try {
-      const patient = await Patient.findById(req.params.id);
-      if (!patient) {
+      const user = await User.findById(req.params.id);
+      if (!user) {
         return res
           .status(404)
-          .json({ error: 'Patient with this ID does not exist' });
+          .json({ error: 'user with this ID does not exist' });
       }
 
-      return res.status(200).json({ patient: formatResponse(patient) });
+      return res.status(200).json({ user: formatResponse(user) });
     } catch (err) {
       return res.status(500).json({ error: 'Server Error' });
     }
   }
 
-  static async updatePatient(req, res, next) {
+  static async updateUser(req, res, next) {
     try {
-      const patientId = req.params.id;
-      if (!patientId) {
+      const userId = req.params.id;
+      if (!userId) {
         return res.status(403).json({ error: 'Forbidden' });
       }
-      const updatedPatient = await Patient.findByIdAndUpdate(
-        { _id: patientId },
+      const updatedUser = await User.findByIdAndUpdate(
+        { _id: userId },
         req.body,
         { new: true, runValidators: true }
       );
-      if (!updatedPatient) {
+      if (!updatedUser) {
         return res
           .status(404)
-          .json({ error: 'Patient with this ID does not exist' });
+          .json({ error: 'user with this ID does not exist' });
       }
 
-      return res.status(200).json({ Patient: formatResponse(updatedPatient) });
+      return res.status(200).json({ user: formatResponse(updatedUser) });
     } catch (err) {
       return res.status(500).json({ error: 'Server Error' });
     }
   }
 
-  static async deletePatient(req, res, next) {
+  static async deleteUser(req, res, next) {
     try {
-      const patientId = req.params.id;
-      if (!patientId) {
+      const userId = req.params.id;
+      if (!userId) {
         return res.status(403).json({ error: 'Forbidden' });
       }
-      const patient = await Patient.findByIdAndDelete(patientId);
+      const user = await User.findByIdAndDelete(userId);
 
-      if (!patient) {
+      if (!user) {
         return res
           .status(404)
-          .json({ error: 'Patient with this ID does not exist' });
+          .json({ error: 'user with this ID does not exist' });
       }
 
       return res.status(204).end({ status: 'success' });
@@ -84,14 +84,14 @@ class PatientController {
   }
 
   static async getMe(req, res, next) {
-    req.params.id = req.patient.id;
+    req.params.id = req.user.id;
     next();
-    req.patient.id;
+    req.User.id;
   }
 
   static async updateMe(req, res, next) {
-    const patientId = req.patient.id;
-    if (!patientId) {
+    const userId = req.user.id;
+    if (!userId) {
       return res.status(403).json({ error: 'Forbidden' });
     }
     if (req.body.password || req.body.passwordConfirmation) {
@@ -113,13 +113,13 @@ class PatientController {
         'lastName',
         'image',
       ]);
-      const updatedPatient = await Patient.findByIdAndUpdate(
-        patientId,
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
         filterredFields,
         { new: true, runValidators: true }
       );
 
-      return res.status(200).json({ Patient: formatResponse(updatedPatient) });
+      return res.status(200).json({ user: formatResponse(updatedUser) });
     } catch (error) {
       console.log(error);
       return res.status(500).json({ error: 'Server Error' });
@@ -127,15 +127,14 @@ class PatientController {
   }
 
   static async deleteMe(req, res, next) {
-    console.log(req.patient);
     try {
-      const patientId = req.patient.id;
+      const userId = req.user.id;
 
-      const patient = await Patient.findByIdAndUpdate(patientId, {
+      const user = await User.findByIdAndUpdate(userId, {
         active: false,
       });
 
-      if (!patient) {
+      if (!user) {
         return res.status(403).json({ error: 'Forbidden' });
       }
 
@@ -147,4 +146,4 @@ class PatientController {
   }
 }
 
-module.exports = PatientController;
+module.exports = UserController;

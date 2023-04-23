@@ -9,7 +9,7 @@ function strictString(val) {
   return val;
 }
 
-const PatientSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
   _id: {
     type: String,
     default: () => uuidv4().replace(/-/g, ''),
@@ -52,7 +52,7 @@ const PatientSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: {
-      values: ['patient', 'provider'],
+      values: ['patient', 'admin', 'moderator'],
       message: 'A Patient type can either be: patient or provider',
     },
     default: 'patient',
@@ -64,7 +64,7 @@ const PatientSchema = new mongoose.Schema({
   image: String,
 });
 
-PatientSchema.pre('save', async function (next) {
+UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
 
   this.password = sha1(this.password);
@@ -73,10 +73,10 @@ PatientSchema.pre('save', async function (next) {
   next();
 });
 
-PatientSchema.pre(/^find/, async function (next) {
+UserSchema.pre(/^find/, async function (next) {
   this.find({ active: { $ne: false } });
   next();
 });
 
-const Patient = mongoose.model('Patient', PatientSchema);
-module.exports = Patient;
+const User = mongoose.model('User', UserSchema);
+module.exports = User;

@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
-const sha1 = require('sha1');
 const { v4: uuidv4 } = require('uuid');
 
 const ProviderSchema = new mongoose.Schema({
@@ -14,11 +12,11 @@ const ProviderSchema = new mongoose.Schema({
     required: [true, 'Kindly provide your fullName'],
   },
   bio: String,
-  service: String,
+  specialty: String,
   yearOfExperience: Number,
-  NumberOfPatient: Number,
+  numberOfPatientAttendedTo: Number,
   image: String,
 });
 
-const User = mongoose.model('User', ProviderSchema);
-module.exports = User;
+const Provider = mongoose.model('Provider', ProviderSchema);
+module.exports = Provider;
