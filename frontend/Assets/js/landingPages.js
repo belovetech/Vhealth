@@ -5,6 +5,9 @@ var bookAppointmentButtons = document.querySelectorAll('.book-appointment');
 var modal = document.getElementById('myModal');
 var closeButton = modal.querySelector('.close');
 
+// Flag variable to check if appointment elements have already been added
+var appointmentAdded = false;
+
 // When the user clicks on a book appointment button, open the modal
 bookAppointmentButtons.forEach(function(button) {
   button.addEventListener('click', function() {
@@ -23,7 +26,9 @@ window.addEventListener('click', function(event) {
 // Function to open modal
 function openModal() {
   modal.style.display = 'block';
-  bookAppointment();
+  if (!appointmentAdded) {
+    bookAppointment();
+  }
 }
 
 // Function to close modal
@@ -33,12 +38,12 @@ function closeModal() {
   if (calendarContainer) {
     calendarContainer.removeChild(document.getElementById("appointment-date"));
     calendarContainer.removeChild(document.getElementById("appointment-time"));
+    calendarContainer.removeChild(document.getElementById("done-button"));
+    appointmentAdded = false;
   }
 }
 
-
-
-// book apo
+// book appointment
 function bookAppointment() {
   // Create a new date object and add 7 days to it
   var appointmentDate = new Date();
@@ -61,25 +66,26 @@ function bookAppointment() {
   timeInput.id = "appointment-time";
   timeInput.name = "appointment-time";
 
-  // Find the calendar container element and add the input elements
+  // Create the "Done" button and add it to the container
+  var doneButton = document.createElement("button");
+  doneButton.id = "done-button";
+  doneButton.innerHTML = "Done";
+  doneButton.addEventListener("click", function() {
+    var dateValue = dateInput.value;
+    var timeValue = timeInput.value;
+    if (dateValue && timeValue) {
+      alert("Appointment booked successfully!");
+    } else {
+      alert("Please fill in all fields.");
+    }
+  });
+
+  // Find the calendar container element and add the input elements and "Done" button
   var calendarContainer = document.querySelector(".calendar-container");
   if (calendarContainer) {
     calendarContainer.appendChild(dateInput);
     calendarContainer.appendChild(timeInput);
-
-    // Create the "Done" button and add it to the container
-    var doneButton = document.createElement("button");
-    doneButton.innerHTML = "Done";
-    doneButton.addEventListener("click", function() {
-      var dateValue = dateInput.value;
-      var timeValue = timeInput.value;
-      if (dateValue && timeValue) {
-        alert("Appointment booked successfully!");
-      } else {
-        alert("Please fill in all fields.");
-      }
-    });
     calendarContainer.appendChild(doneButton);
+    appointmentAdded = true;
   }
 }
-
