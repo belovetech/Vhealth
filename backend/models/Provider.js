@@ -20,5 +20,7 @@ const ProviderSchema = new mongoose.Schema({
   image: String,
 });
 
+// ProviderSchema.index({ location: 'text' });
+
 const Provider = mongoose.model('Provider', ProviderSchema);
 module.exports = Provider;

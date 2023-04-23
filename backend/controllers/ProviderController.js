@@ -140,6 +140,34 @@ class ProviderController {
       return res.status(500).json({ error: 'Server Error' });
     }
   }
+
+  static async searchProvider(req, res, next) {
+    try {
+      const providerId = req.user.id;
+
+      if (!providerId) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+
+      const location = req.body.location;
+
+      const providers = await Provider.find({
+        location: { $regex: /cal/i },
+      });
+
+      const data = providers.map((provider) =>
+        formatProviderResponse(provider)
+      );
+
+      return res.status(200).json({
+        results: providers.length,
+        providers: data,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ error: 'Server Error' });
+    }
+  }
 }
 
 module.exports = ProviderController;
