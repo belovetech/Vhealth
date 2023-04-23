@@ -6,6 +6,7 @@ const formatProviderResponse = (object) => {
     specialty: object.specialty,
     location: object.location,
     availability: object.availability,
+    unavailability: object.unavailability,
     yearOfExperience: object.yearOfExperience,
     numberOfPatientAttendedTo: object.numberOfPatientAttendedTo,
   };
