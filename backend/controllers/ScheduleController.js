@@ -1,4 +1,6 @@
+const Provider = require("../models/Provider")
 const Schedule = require("../models/Schedule")
+const { getCallAccessToken } = require("../utils/getCallToken")
 
 const getDoctorAvail = async (req, res) => {
     const user = req.user
@@ -13,9 +15,16 @@ const getDoctorAvail = async (req, res) => {
     })
 
     const unavailableDates = schedules.map(schedule => schedule.date)
+    // get doctor profile
+    const doctor = await Provider.findById(providerId)
+    res.status(200).json({
+        unavailableDates,
+        doctor
+    })
 }
 
 const bookSchedule =  async (req, res) => {
+    const userId = req.user.id
     const { date, time, providerId } = req.body
     const existingsSchedules = await Schedule.find({
         providerId: providerId,
@@ -29,11 +38,50 @@ const bookSchedule =  async (req, res) => {
     }
     // create new schedule
     const newSchedule = await Schedule.create({
-
+        providerId: providerId,
+        userId: userId,
+        date: date,
+        time: time,
     })
+
+    res.status(200).json({
+        message: 'success',
+        callDetails: JSON.parse(JSON.stringify(newSchedule))
+    })
+}
+
+// join call: user
+// check if the schedule has not expired
+// need the room name which will correspond to the call or schedule ID
+
+const userJoinVideoCall = async (req, res) => {
+    const userId = req.user.id
+    const { scheduleId } = req.body
+    if (!scheduleId) {
+        return res.status(400).json({
+            message: 'meeting Id is missing'
+        })
+    }
+    const call = await Schedule.find({
+        userId: userId,
+        _id: scheduleId,
+        status: 'pending'
+    })
+    if (call) {
+        return res.status(404).json({
+            message: 'meeting not found'
+        })
+    }
+    const callAccessToken = getCallAccessToken(scheduleId, userId)
+    return {
+        callAccessToken: callAccessToken,
+        roomName: scheduleId,
+        userId: userId
+    }
 }
 
 module.exports = {
     getDoctorAvail,
-    bookSchedule
+    bookSchedule,
+    userJoinVideoCall
 }
