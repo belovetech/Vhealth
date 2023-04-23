@@ -4,7 +4,8 @@ const morgan = require('morgan');
 const path = require('path');
 
 const authRouter = require('./routes/authRouter');
-const patientRouter = require('./routes/patientRouter');
+const userRouter = require('./routes/userRouter');
+const providerRouter = require('./routes/providerRouter');
 
 // APP
 const app = express();
@@ -24,7 +25,8 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use('/auth', authRouter);
-app.use('/patients', patientRouter);
+app.use('/users', userRouter);
+app.use('/providers', providerRouter);
 
 app.use('*', (req, res, next) =>
   res.status(404).json({ Error: 'This route was not defined on this server' })
