@@ -15,6 +15,7 @@
     "bullmq": "^3.12.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
+    "ejs": "^3.1.9",
     "email-validator": "^2.0.4",
     "express": "^4.18.2",
     "express-async-errors": "^3.1.1",
@@ -26,8 +27,10 @@
     "mongoose": "^7.0.3",
     "morgan": "^1.10.0",
     "nodemailer": "^6.9.1",
+    "peer": "^1.0.0",
     "redis": "^2.8.0",
     "sha1": "^1.1.1",
+    "socket.io": "^4.6.1",
     "utils": "^0.3.1",
     "uuid": "^9.0.0",
     "validator": "^13.9.0"

@@ -1,3 +1,8 @@
+/**
+ * Apointment Controller
+ * book appoointment and cancle appointment endpoints handlers
+ */
+
 const Appointment = require('../models/Appointment');
 const Provider = require('../models/Provider');
 const User = require('../models/User');
@@ -33,23 +38,28 @@ class AppointementController {
         return res.status(404).json({ error: 'There is no user with this ID' });
       }
 
-      //TODO: Take care of already passed time
       const timeAvailable = provider.availability.some((t) => t === time);
-      if (!timeAvailable) {
-        return res.status(400).json({ error: 'Time is not available' });
-      } else {
-        provider.unavailability.push(time);
-        const index = provider.availability.indexOf(time);
-        provider.availability.splice(index, 1);
-        provider.save();
+      if (
+        !timeAvailable ||
+        Number(new Date(`${date} ${time}`)) <= Number(new Date())
+      ) {
+        return res.status(400).json({
+          error:
+            'Date and Time are not available, Kindly select another available date and time',
+        });
       }
-
       const appointment = await Appointment.create({
         providerId,
         userId,
         date,
         time,
       });
+
+      // Update the availability and unavailability upon successful booking
+      provider.unavailability.push(time);
+      const index = provider.availability.indexOf(time);
+      provider.availability.splice(index, 1);
+      provider.save();
 
       const job = {
         date,
@@ -60,13 +70,11 @@ class AppointementController {
       };
       // Send notification
       // keep records of both the provider and patient
-      await sendEmail('Booking appointment', 'immediate', job, 0);
-      Promise.allSettled([
-        await sendEmail('Appointment Reminder', '10mins', job, 10),
-        await sendEmail('Appointment Time', 'exactTime', job, 1),
-      ])
-        .then((res) => console.log(res))
-        .then((err) => console.log(err));
+      // await sendEmail('Booking appointment', 'immediate', job, 0);
+      // Promise.allSettled([
+      //   await sendEmail('Appointment Reminder', '10mins', job, 10),
+      //   await sendEmail('Appointment Time', 'exactTime', job, 1),
+      // ]);
 
       return res.status(201).json({
         id: appointment._id,
@@ -117,8 +125,8 @@ class AppointementController {
       }
 
       //TODO: Take care of already passed time
-      const timeAvailable = provider.unavailability.some((t) => t === time);
-      if (!timeAvailable) {
+      const timeUnavailable = provider.unavailability.some((t) => t === time);
+      if (!timeUnavailable) {
         return res.status(400).json({ error: 'Invalid Time' });
       } else {
         provider.availability.push(time);
@@ -136,7 +144,7 @@ class AppointementController {
       };
 
       // send cancellation notification
-      await sendEmail('Cancelled appointment', 'cancel', job, 0);
+      // await sendEmail('Cancelled appointment', 'cancel', job, 0);
 
       // update records of both the provider and patient
 
