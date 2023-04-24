@@ -33,6 +33,7 @@ class AppointementController {
         return res.status(404).json({ error: 'There is no user with this ID' });
       }
 
+      //TODO: Take care of already passed time
       const timeAvailable = provider.availability.some((t) => t === time);
       if (!timeAvailable) {
         return res.status(400).json({ error: 'Time is not available' });
@@ -107,7 +108,7 @@ class AppointementController {
         return res.status(400).json({ ...validation });
       }
 
-      const { providerId, time } = req.body;
+      const { providerId, date, time } = req.body;
       const provider = await Provider.findById(providerId);
       if (!provider) {
         return res
@@ -115,6 +116,7 @@ class AppointementController {
           .json({ error: 'There is no provider with this ID' });
       }
 
+      //TODO: Take care of already passed time
       const timeAvailable = provider.unavailability.some((t) => t === time);
       if (!timeAvailable) {
         return res.status(400).json({ error: 'Invalid Time' });
@@ -125,7 +127,17 @@ class AppointementController {
         provider.save();
       }
 
+      const job = {
+        date: date || 0,
+        time: time || 0,
+        email: user.email,
+        firstName: user.firstName,
+        provider: provider.fullName,
+      };
+
       // send cancellation notification
+      await sendEmail('Cancelled appointment', 'cancel', job, 0);
+
       // update records of both the provider and patient
 
       return res
