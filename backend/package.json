@@ -6,7 +6,7 @@
   "scripts": {
     "start-server": "NODE_ENV=development nodemon node server.js",
     "start-worker": "nodemon node ./worker/service.js > log.txt &",
-    "start": "npm run start-server && npm run start-worker"
+    "start": "npm run start-worker && npm run start-server"
   },
   "author": "",
   "license": "ISC",

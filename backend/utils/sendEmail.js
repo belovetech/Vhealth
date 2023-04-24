@@ -2,8 +2,9 @@ const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
 const { NotificationClient } = require('./notification');
+const calculateDelay = require('../utils/calculateDelay');
 
-module.exports = async (jobName, subject, data) => {
+module.exports = async (subject, template, data, dur) => {
   const notification = new NotificationClient({
     connection: { host: process.env.REDIS_HOST, port: process.env.REDIS_PORT },
   });
@@ -19,10 +20,11 @@ module.exports = async (jobName, subject, data) => {
   };
 
   const source = fs.readFileSync(
-    path.join(__dirname, '../utils/template/' + jobName + '.handlebars'),
+    path.join(__dirname, '../utils/template/' + template + '.handlebars'),
     'utf8'
   );
   const compiledTemplate = handlebars.compile(source);
+
   const job = {
     from: 'Vhealth <support@belovetech.tech>',
     subject,
@@ -30,7 +32,9 @@ module.exports = async (jobName, subject, data) => {
     html: compiledTemplate(payload),
   };
 
-  await notification.enqueue(jobName, job);
+  const delay = calculateDelay(`${data.date} ${data.time}`, dur);
+  await notification.enqueue('email-message', job, delay);
+
   console.info(`Enqueued an email sending to ${job.to}`);
   notification.close();
 };

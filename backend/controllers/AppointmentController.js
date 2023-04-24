@@ -2,12 +2,7 @@ const Appointment = require('../models/Appointment');
 const Provider = require('../models/Provider');
 const User = require('../models/User');
 const makeValidation = require('@withvoid/make-validation');
-const { NotificationClient } = require('../utils/notification');
 const sendEmail = require('../utils/sendEmail');
-
-const notificationClient = new NotificationClient({
-  connection: { host: process.env.REDIS_HOST, port: process.env.REDIS_PORT },
-});
 
 class AppointementController {
   static async bookAppointement(req, res, next) {
@@ -62,12 +57,15 @@ class AppointementController {
         firstName: user.firstName,
         provider: provider.fullName,
       };
-
       // Send notification
       // keep records of both the provider and patient
-      await sendEmail('immediate', 'Booking appointment', job);
-      // await sendEmail('10mins', 'Booking appointment', job);
-      // await sendEmail('exactTime', 'Booking appointment', job);
+      await sendEmail('Booking appointment', 'immediate', job, 0);
+      Promise.allSettled([
+        await sendEmail('Appointment Reminder', '10mins', job, 10),
+        await sendEmail('Appointment Time', 'exactTime', job, 1),
+      ])
+        .then((res) => console.log(res))
+        .then((err) => console.log(err));
 
       return res.status(201).json({
         id: appointment._id,
