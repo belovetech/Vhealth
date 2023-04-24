@@ -1,3 +1,4 @@
 .config.env
 .npm
+log.txt
 node_modules/
