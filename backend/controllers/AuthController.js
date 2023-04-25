@@ -46,8 +46,10 @@ class AuthController {
         user: formatResponse(user),
       });
     } catch (error) {
-      if (error.name === 'ValidationError') {
-        return res.status(400).json({ error: error.message });
+      if (error.errors.passwordConfirmation) {
+        return res
+          .status(400)
+          .json({ error: error.errors.passwordConfirmation.message });
       }
       return res.status(500).json({ error: 'Server Error' });
     }

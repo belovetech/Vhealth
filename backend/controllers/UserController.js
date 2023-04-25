@@ -77,8 +77,9 @@ class UserController {
           .json({ error: 'user with this ID does not exist' });
       }
 
-      return res.status(204).end({ status: 'success' });
+      return res.status(200).end({ mesage: 'user was successfully deleted' });
     } catch (err) {
+      console.log(err);
       return res.status(500).json({ error: 'Server Error' });
     }
   }

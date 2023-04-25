@@ -30,6 +30,7 @@ class ProviderController {
         location,
         yearOfExperience,
         numberOfPatientAttendedTo,
+        availability,
       } = req.body;
 
       const provider = await Provider.create({
@@ -39,6 +40,7 @@ class ProviderController {
         location: capitalize(location),
         yearOfExperience,
         numberOfPatientAttendedTo,
+        availability,
       });
 
       return res.status(201).json(formatProviderResponse(provider));

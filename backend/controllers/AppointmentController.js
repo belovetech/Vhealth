@@ -56,11 +56,18 @@ class AppointementController {
         time,
       });
 
+      if (!appointment) {
+        return res.status(500).json({ error: 'Server Error' });
+      }
+      user.appointments = appointment._id;
+      provider.appointments = appointment._id;
+
       // Update the availability and unavailability upon successful booking
       provider.unavailability.push(time);
       const index = provider.availability.indexOf(time);
       provider.availability.splice(index, 1);
       provider.save();
+      user.save({ validateBeforeSave: false });
 
       const job = {
         date,
@@ -71,11 +78,11 @@ class AppointementController {
       };
 
       // Send notification
-      await sendEmail('Booking appointment', 'immediate', job, 0);
-      Promise.allSettled([
-        await sendEmail('Appointment Reminder', '10mins', job, 10),
-        await sendEmail('Appointment Time', 'exactTime', job, 1),
-      ]);
+      // await sendEmail('Booking appointment', 'immediate', job, 0);
+      // Promise.allSettled([
+      //   await sendEmail('Appointment Reminder', '10mins', job, 10),
+      //   await sendEmail('Appointment Time', 'exactTime', job, 1),
+      // ]);
 
       // update records of both the provider and patient
       // update the appointment status
@@ -148,7 +155,7 @@ class AppointementController {
       };
 
       // send cancellation notification
-      await sendEmail('Cancelled appointment', 'cancel', job, 0);
+      // await sendEmail('Cancelled appointment', 'cancel', job, 0);
       // update records of both the provider and patient
       // update the appointment status
 
@@ -175,10 +182,6 @@ class AppointementController {
         .paginate();
 
       const appointments = await features.query;
-
-      // const data = providers.map((provider) =>
-      //   formatAppointmentResponse(provider)
-      // );
 
       return res.status(200).json({
         results: appointments.length,
