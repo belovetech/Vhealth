@@ -11,11 +11,11 @@ const AppointmentSchema = new mongoose.Schema(
       type: String,
       default: () => uuidv4().replace(/-/g, ''),
     },
-    providerId: {
+    doctor: {
       type: String,
       ref: 'Provider',
     },
-    userId: {
+    patient: {
       type: String,
       ref: 'User',
     },
@@ -31,9 +31,16 @@ const AppointmentSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    collection: 'appointements',
+    collection: 'appointments',
   }
 );
 
+AppointmentSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'patient doctor',
+    select: '-__v',
+  });
+  next();
+});
 const Appointment = mongoose.model('Appointment', AppointmentSchema);
 module.exports = Appointment;

@@ -1,11 +1,19 @@
+/**
+ * User (patient/admin) Model
+ */
+
 const mongoose = require('mongoose');
 const validator = require('validator');
 const sha1 = require('sha1');
 const { v4: uuidv4 } = require('uuid');
 const { string } = require('@withvoid/make-validation/lib/validationTypes');
 
+/**
+ * Check for a strict string value
+ * @param {string} val
+ * @returns true if value is a string otherwise false
+ */
 function strictString(val) {
-  // eslint-disable-next-line no-restricted-globals
   if (!isNaN(val)) throw new Error(`${val} should be a string`);
   return val;
 }
@@ -60,7 +68,7 @@ const UserSchema = new mongoose.Schema({
   },
   appointments: [
     {
-      type: string,
+      type: String,
       ref: 'Appointment',
     },
   ],
@@ -72,7 +80,7 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password') || this.isNew) return next();
 
   this.password = sha1(this.password);
 

@@ -1,3 +1,7 @@
+/**
+ * Health Provider (doctors) Schema
+ */
+
 const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
 
@@ -20,7 +24,7 @@ const ProviderSchema = new mongoose.Schema({
   numberOfPatientAttendedTo: Number,
   appointments: [
     {
-      type: string,
+      type: String,
       ref: 'Appointment',
     },
   ],
