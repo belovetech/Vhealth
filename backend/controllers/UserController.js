@@ -1,3 +1,7 @@
+/**
+ * User (patient) Controller
+ */
+
 const User = require('../models/User');
 const formatResponse = require('../utils/formatResponse');
 const filterFields = require('../utils/filterFields');
@@ -13,7 +17,7 @@ class UserController {
 
   static async getAllUsers(req, res, next) {
     try {
-      const users = await User.find();
+      const users = await User.find().exec();
       const data = users.map((User) => formatResponse(User));
 
       return res.status(200).json({
@@ -27,7 +31,7 @@ class UserController {
 
   static async getUser(req, res, next) {
     try {
-      const user = await User.findById(req.params.id);
+      const user = await User.findById(req.params.id).exec();
       if (!user) {
         return res
           .status(404)
@@ -50,7 +54,8 @@ class UserController {
         { _id: userId },
         req.body,
         { new: true, runValidators: true }
-      );
+      ).exec();
+
       if (!updatedUser) {
         return res
           .status(404)
@@ -69,7 +74,7 @@ class UserController {
       if (!userId) {
         return res.status(403).json({ error: 'Forbidden' });
       }
-      const user = await User.findByIdAndDelete(userId);
+      const user = await User.findByIdAndDelete(userId).exec();
 
       if (!user) {
         return res
@@ -118,7 +123,7 @@ class UserController {
         userId,
         filterredFields,
         { new: true, runValidators: true }
-      );
+      ).exec();
 
       return res.status(200).json({ user: formatResponse(updatedUser) });
     } catch (error) {
@@ -133,7 +138,7 @@ class UserController {
 
       const user = await User.findByIdAndUpdate(userId, {
         active: false,
-      });
+      }).exec();
 
       if (!user) {
         return res.status(403).json({ error: 'Forbidden' });
