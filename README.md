@@ -2,7 +2,7 @@
 
 <!-- redis://red-ch3thqiut4m1v1o79lq0:6379 -->
 
-Vhealth is a consultation web tool that allows patients and health care providers to meet, plan a meeting, and join a video conference at the time of the appointment.
+Vhealth is a consultation web app that allows patients and health care providers to meet, plan a meeting, and join a video conference at the time of the appointment.
 
 Its goal is to give Telehealth services to patients who want to discuss health issues with professional health service providers without leaving their homes.
 
