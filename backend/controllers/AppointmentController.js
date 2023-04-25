@@ -8,6 +8,7 @@ const Provider = require('../models/Provider');
 const User = require('../models/User');
 const makeValidation = require('@withvoid/make-validation');
 const sendEmail = require('../utils/sendEmail');
+const APIfeatures = require('../utils/apiFeatures');
 
 class AppointementController {
   static async bookAppointement(req, res, next) {
@@ -68,13 +69,16 @@ class AppointementController {
         firstName: user.firstName,
         provider: provider.fullName,
       };
+
       // Send notification
-      // keep records of both the provider and patient
-      // await sendEmail('Booking appointment', 'immediate', job, 0);
-      // Promise.allSettled([
-      //   await sendEmail('Appointment Reminder', '10mins', job, 10),
-      //   await sendEmail('Appointment Time', 'exactTime', job, 1),
-      // ]);
+      await sendEmail('Booking appointment', 'immediate', job, 0);
+      Promise.allSettled([
+        await sendEmail('Appointment Reminder', '10mins', job, 10),
+        await sendEmail('Appointment Time', 'exactTime', job, 1),
+      ]);
+
+      // update records of both the provider and patient
+      // update the appointment status
 
       return res.status(201).json({
         id: appointment._id,
@@ -144,9 +148,9 @@ class AppointementController {
       };
 
       // send cancellation notification
-      // await sendEmail('Cancelled appointment', 'cancel', job, 0);
-
+      await sendEmail('Cancelled appointment', 'cancel', job, 0);
       // update records of both the provider and patient
+      // update the appointment status
 
       return res
         .status(200)
@@ -154,6 +158,35 @@ class AppointementController {
     } catch (error) {
       console.log(error);
       return res.status(500).json({ error: 'Server error...' });
+    }
+  }
+
+  static async getAllAppointment(req, res, next) {
+    try {
+      const query = {};
+      for (let [key, value] of Object.entries(req.query)) {
+        query[key] = capitalize(value);
+      }
+
+      const features = new APIfeatures(Appointment.find(), query)
+        .filter()
+        .sort()
+        .limitFields()
+        .paginate();
+
+      const appointments = await features.query;
+
+      // const data = providers.map((provider) =>
+      //   formatAppointmentResponse(provider)
+      // );
+
+      return res.status(200).json({
+        results: appointments.length,
+        appointments,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ error: 'Server Error' });
     }
   }
 }

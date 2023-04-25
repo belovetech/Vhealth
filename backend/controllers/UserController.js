@@ -86,7 +86,7 @@ class UserController {
   static async getMe(req, res, next) {
     req.params.id = req.user.id;
     next();
-    req.User.id;
+    req.user.id;
   }
 
   static async updateMe(req, res, next) {
