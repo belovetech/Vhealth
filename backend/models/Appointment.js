@@ -11,8 +11,14 @@ const AppointmentSchema = new mongoose.Schema(
       type: String,
       default: () => uuidv4().replace(/-/g, ''),
     },
-    providerId: String,
-    userId: String,
+    providerId: {
+      type: String,
+      refs: 'Provider',
+    },
+    userId: {
+      type: String,
+      refs: 'User',
+    },
     date: String,
     time: String,
     status: {

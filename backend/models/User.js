@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const sha1 = require('sha1');
 const { v4: uuidv4 } = require('uuid');
+const { string } = require('@withvoid/make-validation/lib/validationTypes');
 
 function strictString(val) {
   // eslint-disable-next-line no-restricted-globals
@@ -57,6 +58,12 @@ const UserSchema = new mongoose.Schema({
     },
     default: 'patient',
   },
+  appointments: [
+    {
+      type: string,
+      refs: 'Appointment',
+    },
+  ],
   active: {
     type: Boolean,
     default: true,

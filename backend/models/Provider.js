@@ -18,6 +18,12 @@ const ProviderSchema = new mongoose.Schema({
   unavailability: [String],
   yearOfExperience: Number,
   numberOfPatientAttendedTo: Number,
+  appointments: [
+    {
+      type: string,
+      refs: 'Appointment',
+    },
+  ],
   image: String,
 });
 
