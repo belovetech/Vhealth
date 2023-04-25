@@ -13,11 +13,11 @@ const AppointmentSchema = new mongoose.Schema(
     },
     providerId: {
       type: String,
-      refs: 'Provider',
+      ref: 'Provider',
     },
     userId: {
       type: String,
-      refs: 'User',
+      ref: 'User',
     },
     date: String,
     time: String,

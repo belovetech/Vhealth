@@ -21,7 +21,7 @@ const ProviderSchema = new mongoose.Schema({
   appointments: [
     {
       type: string,
-      refs: 'Appointment',
+      ref: 'Appointment',
     },
   ],
   image: String,

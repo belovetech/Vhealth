@@ -61,7 +61,7 @@ const UserSchema = new mongoose.Schema({
   appointments: [
     {
       type: string,
-      refs: 'Appointment',
+      ref: 'Appointment',
     },
   ],
   active: {
