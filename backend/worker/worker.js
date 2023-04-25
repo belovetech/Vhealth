@@ -1,4 +1,3 @@
-const dotenv = require('dotenv');
 const { Worker } = require('bullmq');
 const SendMail = require('./emailProcessor');
 

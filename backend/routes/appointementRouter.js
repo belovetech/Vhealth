@@ -13,10 +13,4 @@ router.post('/cancel', AppointementController.cancelAppointement);
 router.use(restrictTo(['admin', 'moderator']));
 router.get('/', AppointementController.getAllAppointment);
 
-// router
-//   .route('/:id')
-//   .get(ProviderController.getProvider)
-//   .patch(ProviderController.updateProvider)
-//   .delete(ProviderController.deleteProvider);
-
 module.exports = router;

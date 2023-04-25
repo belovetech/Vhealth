@@ -6,6 +6,7 @@ const restrictTo = require('../utils/restrictTo');
 
 const router = express.Router();
 
+// AUTHENTICATION AND AUTHORIZATION
 router.use(AuthController.protect);
 router.use(restrictTo(['admin', 'moderator']));
 
