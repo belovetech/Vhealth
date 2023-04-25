@@ -251,7 +251,7 @@ paths:
           in: path
           description: user ID
           required: true
-          example: fb4995eee06146adb4849b9b90aa6118
+          example: 6f854be6fa9f43deb4f80d79adc69e8e
           schema:
             type: string
       responses:
@@ -389,6 +389,8 @@ paths:
               location: California
               yearOfExperience: '15'
               numberOfPatientAttendedTo: '1000'
+              availability:
+                ['09:00', '10:00', '12:00', '11:00', '01:00', '02:00']
       responses:
         401:
           description: Unauthorized
@@ -449,7 +451,7 @@ paths:
           schema:
             type: string
           example:
-            id: c10762bca6d44da1abc8dd9a2b694e5f
+            id: 9294807bf8d14ea3bda06ff3354624e2
 
       responses:
         200:
@@ -576,7 +578,7 @@ paths:
               time:
                 type: string
             example:
-              providerId: c10762bca6d44da1abc8dd9a2b694e5f
+              providerId: 97c27771a5ba406d8e7ecea944285f3a
               date: '2023-04-25'
               time: '09:30'
 
@@ -767,7 +769,7 @@ definitions:
       - password
     example:
       email: belovetech@gmail.com
-      password: beloved@0211
+      password: myp@$w0rd
 
   LoginResponse:
     type: object
