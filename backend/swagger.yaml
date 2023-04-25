@@ -1,0 +1,990 @@
+swagger: '2.0'
+info:
+  title: Vhealth API
+  description: This is the API documentation for Vhealth consultation web
+  version: '1.0.0'
+host: 'localhost:5050'
+basePath: '/api/v1'
+schemes:
+  - http
+  - https
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: >-
+      Enter the token with the `Bearer: ` prefix, e.g. "Bearer abcde12345".
+consumes:
+  - application/json
+produces:
+  - application/json
+
+paths:
+  /auth/signup:
+    post:
+      summary: Create a new user account
+      description: Sign up a new user with email, password, and other required details
+      tags:
+        - Authentication
+      parameters:
+        - in: body
+          name: body
+          description: Signup user object
+          required: true
+          schema:
+            $ref: '#/definitions/Signup'
+      responses:
+        201:
+          description: User created successfully
+          schema:
+            $ref: '#/definitions/SignupResponse'
+        400:
+          description: Bad Request, Invalid user input
+          schema:
+            $ref: '#/definitions/SignupResponseBadRequest'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+  /auth/login:
+    post:
+      summary: User login
+      description: Log in a user with email and password
+      tags:
+        - Authentication
+      parameters:
+        - in: body
+          name: body
+          description: Login user object
+          required: true
+          schema:
+            $ref: '#/definitions/Login'
+      responses:
+        200:
+          description: User logged in successfully
+          schema:
+            $ref: '#/definitions/LoginResponse'
+        400:
+          description: Bad Request, Invalid user input
+          schema:
+            $ref: '#/definitions/BadRequestResponse'
+        404:
+          description: User not found
+          schema:
+            $ref: '#/definitions/NotFoundResponse'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+  /auth/logout:
+    get:
+      summary: User logout
+      description: Log out a user, clearing their authentication token
+      tags:
+        - Authentication
+      security:
+        - Bearer: []
+      responses:
+        200:
+          description: User logged out successfully
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/UnauthorizedResponse'
+        403:
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+  /users/getMe:
+    get:
+      tags:
+        - User
+      summary: Get current user
+      security:
+        - Bearer: []
+      responses:
+        200:
+          description: Successful operation
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/UnauthorizedError'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+  /users/updateMe:
+    patch:
+      tags:
+        - User
+      summary: Update current user
+      security:
+        - Bearer: []
+      parameters:
+        - in: body
+          name: body
+          description: update current user
+          required: true
+          schema:
+            $ref: '#/components/schemas/userUpdate'
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/UnauthorizedError'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+  /users/deleteMe:
+    delete:
+      tags:
+        - User
+      summary: Delete current user
+      operationId: deleteMe
+      security:
+        - Bearer: []
+      responses:
+        204:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+        403:
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+  /users:
+    post:
+      tags:
+        - User
+      summary: Create a user
+      operationId: createuser
+      security:
+        - Bearer: []
+      parameters:
+        - in: body
+          name: body
+          description: update current user
+          required: true
+          schema:
+            $ref: '#/components/schemas/userCreate'
+      responses:
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/UnauthorizedError'
+        405:
+          description: Not allowed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: fail
+                  message:
+                    type: string
+                    description: failure message
+    get:
+      tags:
+        - User
+      summary: Get all users
+      operationId: getAllusers
+      security:
+        - Bearer: []
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: integer
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/user'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+  /users/{id}:
+    get:
+      tags:
+        - User
+      summary: Get a user by ID
+      operationId: getuser
+      security:
+        - Bearer: []
+      parameters:
+        - name: id
+          in: path
+          description: user ID
+          required: true
+          example: fb4995eee06146adb4849b9b90aa6118
+          schema:
+            type: string
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/UnauthorizedError'
+        404:
+          description: User not found
+          schema:
+            $ref: '#/definitions/NotFoundResponse'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+    patch:
+      tags:
+        - User
+      summary: Update a user by ID
+      operationId: updateuser
+      security:
+        - Bearer: []
+      parameters:
+        - name: id
+          in: path
+          description: user ID
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: body
+          description: update user
+          required: true
+          schema:
+            $ref: '#/components/schemas/userUpdate'
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/UnauthorizedError'
+        404:
+          description: User not found
+          schema:
+            $ref: '#/definitions/NotFoundResponse'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+    delete:
+      tags:
+        - User
+      summary: Delete a user by ID
+      operationId: deleteuser
+      security:
+        - Bearer: []
+      parameters:
+        - name: id
+          in: path
+          description: user ID
+          required: true
+          schema:
+            type: string
+      responses:
+        204:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: string
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/UnauthorizedError'
+        404:
+          description: user not found
+          schema:
+            $ref: '#/definitions/NotFoundResponse'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+  /providers:
+    post:
+      tags:
+        - Provider
+      summary: Create a provider
+      operationId: createprovider
+      security:
+        - Bearer: []
+      parameters:
+        - in: body
+          name: body
+          description: create a new provider
+          required: true
+          schema:
+            type: object
+            properties:
+              fullName:
+                type: string
+              bio:
+                type: string
+              specialty:
+                type: string
+              location:
+                type: string
+              yearOfExperience:
+                type: string
+              numberOfPatientAttendedTo:
+                type: string
+              availability:
+                type: array
+              unavailability:
+                type: array
+            example:
+              fullName: David E. Sowa, MD
+              bio: Dr. David Sowa is an established and highly skilled physician with over 25 years of experience in obstetrics and gynecology. He is well regarded in the central Connecticut community, earning numerous accolades for his quality and patientcentered care.
+              specialty: gynecology
+              location: California
+              yearOfExperience: '15'
+              numberOfPatientAttendedTo: '1000'
+      responses:
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/UnauthorizedError'
+        405:
+          description: Not allowed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: fail
+                  message:
+                    type: string
+                    description: failure message
+    get:
+      tags:
+        - Provider
+      summary: Get all providers
+      operationId: getAllproviders
+      security:
+        - Bearer: []
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: integer
+                  providers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/user'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+  /providers/{id}:
+    get:
+      tags:
+        - Provider
+      summary: Get a provider by ID
+      operationId: getprovider
+      security:
+        - Bearer: []
+      parameters:
+        - name: id
+          in: path
+          description: provider ID
+          required: true
+          schema:
+            type: string
+          example:
+            id: c10762bca6d44da1abc8dd9a2b694e5f
+
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/UnauthorizedError'
+        404:
+          description: provider not found
+          schema:
+            $ref: '#/definitions/NotFoundResponse'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+    patch:
+      tags:
+        - Provider
+      summary: Update a provider by ID
+      operationId: updateprovider
+      security:
+        - Bearer: []
+      parameters:
+        - name: id
+          in: path
+          description: provider ID
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: body
+          description: update provider
+          required: true
+          schema:
+            properties:
+              availability:
+                type: array
+              unavailability:
+                type: array
+            example:
+              availability: ['09:30', '10:30', '12:00', '01:00', '02:00']
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/UnauthorizedError'
+        404:
+          description: provider not found
+          schema:
+            $ref: '#/definitions/NotFoundResponse'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+    delete:
+      tags:
+        - Provider
+      summary: Delete a provider by ID
+      operationId: deleteprovider
+      security:
+        - Bearer: []
+      parameters:
+        - name: id
+          in: path
+          description: provider ID
+          required: true
+          schema:
+            type: string
+      responses:
+        204:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: string
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/UnauthorizedError'
+        404:
+          description: provider not found
+          schema:
+            $ref: '#/definitions/NotFoundResponse'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+  /appointments:
+    post:
+      tags:
+        - Appointment
+      summary: Book an appointment
+      operationId: createpappointment
+      security:
+        - Bearer: []
+      parameters:
+        - in: body
+          name: body
+          description: create a new appointment
+          required: true
+          schema:
+            type: object
+            properties:
+              providerId:
+                type: string
+              date:
+                type: string
+              time:
+                type: string
+            example:
+              providerId: c10762bca6d44da1abc8dd9a2b694e5f
+              date: '2023-04-25'
+              time: '09:30'
+
+      responses:
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/UnauthorizedError'
+        405:
+          description: Not allowed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: fail
+                  message:
+                    type: string
+                    description: failure message
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+    get:
+      tags:
+        - Appointment
+      summary: Get all appointment
+      operationId: getAllappointment
+      security:
+        - Bearer: []
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: integer
+                  providers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/appointment'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+  /appointments/cancel:
+    post:
+      tags:
+        - Appointment
+      summary: Cancle an appointment
+      operationId: canclepappointment
+      security:
+        - Bearer: []
+      parameters:
+        - in: body
+          name: body
+          description: create a new appointment
+          required: true
+          schema:
+            type: object
+            properties:
+              providerId:
+                type: string
+              date:
+                type: string
+              time:
+                type: string
+            example:
+              providerId: c10762bca6d44da1abc8dd9a2b694e5f
+              date: '2023-04-25'
+              time: '09:30'
+
+      responses:
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/UnauthorizedError'
+        405:
+          description: Not allowed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: fail
+                  message:
+                    type: string
+                    description: failure message
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+definitions:
+  Signup:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+        format: email
+      password:
+        type: string
+      passwordConfirmation:
+        type: string
+    required:
+      - firstName
+      - lastName
+      - email
+      - phoneNumber
+      - password
+      - passwordConfirmation
+    example:
+      firstName: Ishola
+      lastName: Raheem
+      email: raheemabeebishola@gmail.com
+      password: 'myp@$$w0rd'
+      passwordConfirmation: 'myp@$$w0rd'
+
+  SignupResponse:
+    type: object
+    properties:
+      status:
+        type: string
+      data:
+        type: object
+        properties:
+          id:
+            type: string
+          firstName:
+            type: string
+          lastName:
+            type: string
+          email:
+            type: string
+          role:
+            type: string
+    required:
+      - status
+      - data
+
+  SignupResponseBadRequest:
+    type: object
+    properties:
+      error:
+        type: object
+        properties:
+          firstName:
+            type: string
+            description: 'firstName should be string'
+          lastName:
+            type: string
+            description: 'lastName should be string'
+          email:
+            type: string
+            description: 'Error message for email validation'
+          password:
+            type: string
+            description: 'Error message for password validation'
+          passwordConfirmation:
+            type: string
+            description: 'Error message for passwordConfirmation validation'
+    required:
+      - error
+
+  Login:
+    type: object
+    properties:
+      email:
+        type: string
+        format: email
+      password:
+        type: string
+    required:
+      - email
+      - password
+    example:
+      email: belovetech@gmail.com
+      password: beloved@0211
+
+  LoginResponse:
+    type: object
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/user'
+    required:
+      - token
+      - user
+
+  user:
+    type: object
+    properties:
+      id:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+      role:
+        type: string
+    required:
+      - id
+      - firstName
+      - lastName
+      - email
+
+  # ForgetPassword:
+  #   type: object
+  #   required:
+  #     - email
+  #   properties:
+  #     email:
+  #       type: string
+  #       format: email
+  #   example:
+  #     email: eladebayoor@gmail.com
+
+  # forgetPasswordResponse:
+  #   type: object
+  #   properties:
+  #     status:
+  #       type: string
+  #       description: success
+  #     message:
+  #       type: string
+  #       description: password reset link sent successfully
+  #   required:
+  #     - status
+  #     - message
+
+  # confirmResetPasswordResponse:
+  #   type: object
+  #   properties:
+  #     status:
+  #       type: string
+  #       description: success
+  #     id:
+  #       type: string
+  #       description: user id
+  #     token:
+  #       type: string
+  #       description: user token generated
+  #     message:
+  #       type: string
+  #       description: redirect message to provide new password
+  #   required:
+  #     - status
+  #     - id
+  #     - token
+  #     - message
+
+  UnauthorizedResponse:
+    type: object
+    properties:
+      status:
+        type: string
+        description: fail
+      message:
+        type: string
+        description: Unauthorized error message
+    required:
+      - status
+      - message
+
+  ForbiddenResponse:
+    type: object
+    properties:
+      status:
+        type: string
+        description: fail
+      message:
+        type: string
+        description: Forbidden error message
+    required:
+      - status
+      - message
+
+  BadRequestResponse:
+    type: object
+    properties:
+      status:
+        type: string
+        description: fail
+      message:
+        type: string
+        description: Bad request error message
+    required:
+      - status
+      - message
+
+  NotFoundResponse:
+    type: object
+    properties:
+      status:
+        type: string
+        description: fail
+      message:
+        type: string
+        description: Not Found error message
+    required:
+      - status
+      - message
+
+  ServerErrorResponse:
+    type: object
+    properties:
+      status:
+        type: string
+        description: error
+      message:
+        type: string
+        description: Something went very wrong!
+    required:
+      - status
+      - message
+
+  UnauthorizedError:
+    description: Access token is missing or invalid
+
+components:
+  schemas:
+    user:
+      type: object
+      properties:
+        id:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    appointment:
+      type: object
+      properties:
+        id:
+          type: string
+        providerId:
+          type: string
+        userId:
+          type: string
+        date:
+          type: string
+        time:
+          type: string
+          format: date-time
+    userCreate:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        passwordConfirmation:
+          type: string
+      example:
+        firstName: abeloa
+        lastName: martins
+        email: leomart@gmail.com
+        password: '123ert%&PO'
+        passwordConfirmation: '123ert%&PO'
+    userUpdate:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+      example:
+        firstName: frello
+        lastName: richard
+    StatsResponse:
+      type: object
+      properties:
+        users:
+          type: integer
+      required:
+        - users
+    Status:
+      type: object
+      properties:
+        db:
+          type: boolean
+        redis:
+          type: boolean
