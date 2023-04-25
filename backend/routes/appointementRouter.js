@@ -1,5 +1,6 @@
 /* eslint-disable comma-dangle */
 const express = require('express');
+const restrictTo = require('../utils/restrictTo');
 const AppointementController = require('../controllers/AppointmentController');
 const AuthController = require('../controllers/AuthController');
 
@@ -9,7 +10,8 @@ router.use(AuthController.protect);
 router.route('/').post(AppointementController.bookAppointement);
 router.post('/cancel', AppointementController.cancelAppointement);
 
-//   .get(ProviderController.getAllProvider);
+router.use(restrictTo(['admin', 'moderator']));
+router.get('/', AppointementController.getAllAppointment);
 
 // router
 //   .route('/:id')
