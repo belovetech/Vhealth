@@ -9,6 +9,7 @@ const formatProviderResponse = (object) => {
     unavailability: object.unavailability,
     yearOfExperience: object.yearOfExperience,
     numberOfPatientAttendedTo: object.numberOfPatientAttendedTo,
+    appointments: object.appointments,
   };
 };
 
