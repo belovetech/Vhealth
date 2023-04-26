@@ -6,7 +6,8 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const sha1 = require('sha1');
 const { v4: uuidv4 } = require('uuid');
-const { string } = require('@withvoid/make-validation/lib/validationTypes');
+const crypto = require('crypto');
+const redisClient = require('../database/redis');
 
 /**
  * Check for a strict string value
@@ -92,6 +93,18 @@ UserSchema.pre(/^find/, async function (next) {
   this.find({ active: { $ne: false } });
   next();
 });
+
+// UserSchema.methods.forgetPasswordResetToken = async function () {
+//   const resetToken = crypto.randomBytes(25).toString('hex');
+//   const hashResetToken = crypto
+//     .createHash('sha256')
+//     .update(resetToken)
+//     .digest('hex');
+
+//   const key = uuidv4();
+
+//   await redisClient.set(`resetToken_${key}`, hashResetToken, );
+// };
 
 const User = mongoose.model('User', UserSchema);
 module.exports = User;

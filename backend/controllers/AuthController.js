@@ -1,3 +1,7 @@
+/**
+ * Authentication Controller
+ */
+const crypto = require('crypto');
 const sha1 = require('sha1');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
@@ -5,6 +9,7 @@ const redisClient = require('../database/redis');
 const generateJWToken = require('../utils/generateJWToken');
 const makeValidation = require('@withvoid/make-validation');
 const formatResponse = require('../utils/formatResponse');
+const sendEmail = require('../utils/sendEmail');
 
 class AuthController {
   static async signup(req, res, next) {
@@ -27,7 +32,7 @@ class AuthController {
       const { firstName, lastName, email, password, passwordConfirmation } =
         req.body;
 
-      const userExist = await User.findOne({ email });
+      const userExist = await User.findOne({ email }).exec();
       if (userExist) {
         return res
           .status(400)
@@ -70,7 +75,7 @@ class AuthController {
         return res.status(400).json({ ...validation });
       }
 
-      let user = await User.findOne({ email });
+      let user = await User.findOne({ email }).exec();
       if (!user) {
         return res.status(400).json({ error: 'user not found' });
       }
@@ -169,7 +174,24 @@ class AuthController {
         return res.status(500).json({ error: 'Server error...' });
       }
       console.log(error);
-      return res.status(500).json({ error: 'Server Error' });
+      return res.status(500).json({ error: 'Server Error...' });
+    }
+  }
+
+  static async forgotPassword(req, res, next) {
+    try {
+      const user = await User.findOne({ email: req.body.email });
+
+      if (!user) {
+        return res.status(404).json({ error: 'No User found' });
+      }
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      await redisClient.set(`Reset_${resetToken}`, user._id, 10 * 60 * 1000);
+
+      await sendEmail('Reset Password', 'reset', job, 0);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ error: 'Server Error...' });
     }
   }
 }
