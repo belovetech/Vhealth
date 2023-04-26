@@ -4,11 +4,19 @@ const path = require('path');
 const { NotificationClient } = require('./notification');
 const calculateDelay = require('../utils/calculateDelay');
 
+/**
+ * Construct the email template and Enqueue jobs to the queue,
+ * @param {string} subject
+ * @param {string} template
+ * @param {string} data
+ * @param {number} dur
+ */
 module.exports = async (subject, template, data, dur) => {
   const notification = new NotificationClient({
     connection: { host: process.env.REDIS_HOST, port: process.env.REDIS_PORT },
   });
 
+  // construct email template
   const payload = {
     firstName: data.firstName,
     provider: data.provider,
@@ -25,6 +33,7 @@ module.exports = async (subject, template, data, dur) => {
   );
   const compiledTemplate = handlebars.compile(source);
 
+  // enqueue job
   const job = {
     from: 'Vhealth <support@belovetech.tech>',
     subject,

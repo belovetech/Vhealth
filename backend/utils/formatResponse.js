@@ -1,4 +1,10 @@
-const formatResponse = (object) => {
+/**
+ * format user response object
+ * @param {response} object
+ * @returns - formatted response
+ */
+
+module.exports = (object) => {
   const User = {
     id: object._id,
     firstName: object.firstName,
@@ -9,5 +15,3 @@ const formatResponse = (object) => {
   };
   return User;
 };
-
-module.exports = formatResponse;

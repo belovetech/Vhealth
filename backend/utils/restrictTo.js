@@ -1,3 +1,8 @@
+/**
+ * Authorization middleware (only admin and moderator are allowed)
+ * @param {string} roles
+ * @returns
+ */
 module.exports = function restrictTo(roles) {
   return function (req, res, next) {
     if (!req.user.role || !roles.includes(req.user.role)) {

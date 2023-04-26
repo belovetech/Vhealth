@@ -1,3 +1,8 @@
+/**
+ * APIFeatures - filtering, sorting, limiting fields and
+ *               paginating query responses
+ */
+
 class APIfeatures {
   constructor(query, queryString) {
     this.query = query;

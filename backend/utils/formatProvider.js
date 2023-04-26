@@ -1,4 +1,9 @@
-const formatProviderResponse = (object) => {
+/**
+ * format provider response object
+ * @param {response} object
+ * @returns - formatted response
+ */
+module.exports = (object) => {
   return {
     id: object._id,
     fullName: object.fullName,
@@ -13,4 +18,3 @@ const formatProviderResponse = (object) => {
   };
 };
 
-module.exports = formatProviderResponse;

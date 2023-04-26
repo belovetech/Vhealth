@@ -1,5 +1,9 @@
 const { Queue } = require('bullmq');
 
+/**
+ * Notification Client utility class
+ */
+
 class NotificationClient {
   constructor(opts) {
     this.queue = new Queue('notification', opts);
