@@ -8,7 +8,10 @@ const router = express.Router();
 
 router.use(AuthController.protect);
 router.route('/').post(AppointementController.bookAppointement);
-router.post('/cancel', AppointementController.cancelAppointement);
+router.post(
+  '/cancel/:appointmentId',
+  AppointementController.cancelAppointement
+);
 
 router.use(restrictTo(['admin', 'moderator']));
 router.get('/', AppointementController.getAllAppointment);

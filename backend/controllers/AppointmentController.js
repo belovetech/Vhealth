@@ -109,7 +109,7 @@ class AppointementController {
   static async cancelAppointement(req, res, next) {
     try {
       const userId = req.user.id;
-      const user = await User.findById(userId);
+      let user = await User.findById(userId).exec();
       if (!user) {
         return res.status(403).json({ error: 'Forbidden' });
       }
@@ -117,7 +117,7 @@ class AppointementController {
       const validation = makeValidation((types) => ({
         payload: req.body,
         checks: {
-          providerId: { type: types.string },
+          date: { type: types.string },
           time: { type: types.string },
         },
       }));
@@ -125,37 +125,46 @@ class AppointementController {
         return res.status(400).json({ ...validation });
       }
 
-      const { providerId, date, time } = req.body;
-      const provider = await Provider.findById(providerId);
+      const { date, time } = req.body;
+      const { appointmentId } = req.params;
+
+      const appointment = await Appointment.findById(appointmentId).exec();
+
+      const provider = await Provider.findById(appointment.doctor).exec();
       if (!provider) {
-        return res
-          .status(404)
-          .json({ error: 'There is no provider with this ID' });
+        return res.status(404).json({ error: 'No provider with this ID' });
       }
 
-      //TODO: Take care of already passed time
+      user = await User.findById(appointment.patient).exec();
+      if (!user) {
+        return res.status(404).json({ error: 'No user with this ID' });
+      }
+
       const timeUnavailable = provider.unavailability.some((t) => t === time);
       if (!timeUnavailable) {
         return res.status(400).json({ error: 'Invalid Time' });
-      } else {
-        provider.availability.push(time);
-        const index = provider.unavailability.indexOf(time);
-        provider.unavailability.splice(index, 1);
-        provider.save();
       }
 
       const job = {
-        date: date || 0,
-        time: time || 0,
+        date: date,
+        time: time,
         email: user.email,
         firstName: user.firstName,
         provider: provider.fullName,
       };
 
+      // send cancellation email and update appointment's status
       await sendEmail('Cancelled appointment', 'cancel', job, 0);
-      // TODO: update records of both the provider and patient
-      //TODO:  update the appointment status
+      appointment.status = 'cancelled';
+      appointment.save();
 
+      // update provider's availability
+      provider.availability.push(time);
+      const index = provider.unavailability.indexOf(time);
+      provider.unavailability.splice(index, 1);
+      provider.save();
+
+      // TODO: update records of both the provider and patient
       return res
         .status(200)
         .json({ message: 'Appointment successfully cancelled' });
