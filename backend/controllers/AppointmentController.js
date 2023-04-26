@@ -90,7 +90,7 @@ class AppointementController {
 
       //TODO:  update appointment status to on-going when time appointment is sent
       // TODO: update appointment to held upon completion
-
+      // TODO: update  the number of attendees
       return res.status(201).json({
         id: appointment._id,
         provider: {

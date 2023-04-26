@@ -6,7 +6,7 @@
  */
 module.exports = (date, time, duration) => {
   if (date === undefined || time === undefined) return 0;
-  const dateAndTime = `${data?.date} ${data?.time}`;
+  const dateAndTime = `${date} ${time}`;
   const targetTime = new Date(dateAndTime);
   let delay = 0;
   if (duration === 10) {

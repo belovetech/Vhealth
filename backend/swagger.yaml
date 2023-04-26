@@ -103,6 +103,101 @@ paths:
           schema:
             $ref: '#/definitions/ServerErrorResponse'
 
+  /auth/forgetPassword:
+    post:
+      summary: Forget password
+      description: Send a password reset link to the user's email
+      tags:
+        - Authentication
+      parameters:
+        - in: body
+          name: body
+          description: Forget password object
+          required: true
+          schema:
+            $ref: '#/definitions/ForgetPassword'
+      responses:
+        200:
+          description: Password reset link sent
+          schema:
+            $ref: '#/definitions/forgetPasswordResponse'
+        404:
+          description: User not found
+          schema:
+            $ref: '#/definitions/NotFoundResponse'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+  /auth/resetPassword/{token}:
+    patch:
+      tags:
+        - Authentication
+      summary: Reset user password
+      description: This route resets a user's password.
+      operationId: resetPassword
+      parameters:
+        - in: path
+          name: token
+          schema:
+            type: string
+          required: true
+          description: The reset token sent to the user.
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/resetPassword'
+      responses:
+        200:
+          description: Password reset successfully
+          schema:
+            $ref: '#/definitions/resetPasswordResponse'
+        400:
+          description: Bad request - Invalid input or expired token
+          schema:
+            $ref: '#/definitions/BadRequestResponse'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
+  /auth/updatePassword:
+    patch:
+      tags:
+        - Authentication
+      summary: Update user password
+      description: This route updates the password for an authenticated user.
+      operationId: updatePassword
+      security:
+        - Bearer: []
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/updatePassword'
+      responses:
+        200:
+          description: Password updated successfully
+          schema:
+            $ref: '#/definitions/updatePasswordResponse'
+        400:
+          description: Bad Request, Invalid user input
+          schema:
+            $ref: '#/definitions/BadRequestResponse'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/UnauthorizedError'
+        403:
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ServerErrorResponse'
+
   /users/getMe:
     get:
       tags:
@@ -806,50 +901,90 @@ definitions:
       - lastName
       - email
 
-  # ForgetPassword:
-  #   type: object
-  #   required:
-  #     - email
-  #   properties:
-  #     email:
-  #       type: string
-  #       format: email
-  #   example:
-  #     email: eladebayoor@gmail.com
+  ForgetPassword:
+    type: object
+    required:
+      - email
+    properties:
+      email:
+        type: string
+        format: email
+    example:
+      email: raheemabeebishola@gmail.com
 
-  # forgetPasswordResponse:
-  #   type: object
-  #   properties:
-  #     status:
-  #       type: string
-  #       description: success
-  #     message:
-  #       type: string
-  #       description: password reset link sent successfully
-  #   required:
-  #     - status
-  #     - message
+  forgetPasswordResponse:
+    type: object
+    properties:
+      status:
+        type: string
+        description: success
+      message:
+        type: string
+        description: password reset link sent successfully
+    required:
+      - status
+      - message
 
-  # confirmResetPasswordResponse:
-  #   type: object
-  #   properties:
-  #     status:
-  #       type: string
-  #       description: success
-  #     id:
-  #       type: string
-  #       description: user id
-  #     token:
-  #       type: string
-  #       description: user token generated
-  #     message:
-  #       type: string
-  #       description: redirect message to provide new password
-  #   required:
-  #     - status
-  #     - id
-  #     - token
-  #     - message
+  resetPassword:
+    type: object
+    required:
+      - email
+    properties:
+      password:
+        type: string
+      passwordConfirmation:
+        type: string
+    example:
+      password: newPaswword
+      passwordConfirmation: newPaswword
+
+  resetPasswordResponse:
+    type: object
+    properties:
+      status:
+        type: string
+        description: success
+      id:
+        type: string
+        description: user id
+      token:
+        type: string
+        description: user token generated
+      user:
+        type: Object
+        description: user object and token
+
+  updatePassword:
+    type: object
+    required:
+      - email
+    properties:
+      passwordCurrent:
+        type: string
+      password:
+        type: string
+      passwordConfirmation:
+        type: string
+    example:
+      passwordCurrent: password123
+      password: newPaswword
+      passwordConfirmation: newPaswword
+
+  updatePasswordResponse:
+    type: object
+    properties:
+      status:
+        type: string
+        description: success
+      id:
+        type: string
+        description: user id
+      token:
+        type: string
+        description: user token generated
+      user:
+        type: Object
+        description: user object and token
 
   UnauthorizedResponse:
     type: object

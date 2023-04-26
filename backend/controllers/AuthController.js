@@ -230,7 +230,6 @@ class AuthController {
         .update(req.params.token)
         .digest('hex');
 
-      console.log(hashedToken);
       const user = await User.findOne({
         passwordResetToken: hashedToken,
         passwordResetExpires: { $gt: Date.now() },
@@ -286,11 +285,21 @@ class AuthController {
 
       const { passwordCurrent, password, passwordConfirmation } = req.body;
 
-      const user = await User.findOne({ email: currentPassword }).select(
-        '+password'
-      );
+      const userId = req.user?.id;
+      if (!userId || userId === null) {
+        return res
+          .status(400)
+          .json({ status: 'failed', error: 'unauthorised' });
+      }
+      const user = await User.findById(userId).select('+password');
 
-      if (user.password !== hash1(passwordCurrent)) {
+      if (!user) {
+        return res.status(401).json({
+          status: 'failed',
+          error: 'unauthorised',
+        });
+      }
+      if (user.password !== sha1(passwordCurrent)) {
         return res.status(401).json({
           status: 'failed',
           error: 'Your current password is incorrect',
@@ -304,12 +313,6 @@ class AuthController {
       await generateJWToken(user, res);
     } catch (error) {
       console.log(error);
-      if (error.errors.passwordConfirmation) {
-        return res.status(400).json({
-          status: 'failed',
-          error: error.errors.passwordConfirmation.message,
-        });
-      }
       return res
         .status(500)
         .json({ status: 'failed', error: 'Something went wrong....' });
