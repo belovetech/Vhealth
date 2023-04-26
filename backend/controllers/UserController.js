@@ -5,7 +5,6 @@
 const User = require('../models/User');
 const formatResponse = require('../utils/formatResponse');
 const filterFields = require('../utils/filterFields');
-const makeValidation = require('@withvoid/make-validation');
 
 class UserController {
   static async createUser(req, res, next) {
@@ -82,7 +81,7 @@ class UserController {
           .json({ error: 'user with this ID does not exist' });
       }
 
-      return res.status(200).end({ mesage: 'user was successfully deleted' });
+      return res.status(204).end();
     } catch (err) {
       console.log(err);
       return res.status(500).json({ error: 'Server Error' });
@@ -144,7 +143,7 @@ class UserController {
         return res.status(403).json({ error: 'Forbidden' });
       }
 
-      return res.status(204).json({ status: 'success' });
+      return res.status(204).end();
     } catch (error) {
       console.log(error);
       return res.status(500).json({ error: 'Server Error' });

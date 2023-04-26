@@ -29,14 +29,17 @@ class AppointementController {
       const { providerId, date, time } = req.body;
       const provider = await Provider.findById(providerId);
       if (!provider) {
-        return res
-          .status(404)
-          .json({ error: 'There is no provider with this ID' });
+        return res.status(404).json({
+          status: 'failed',
+          error: 'There is no provider with this ID',
+        });
       }
 
       const user = await User.findById(userId);
       if (!user) {
-        return res.status(404).json({ error: 'There is no user with this ID' });
+        return res
+          .status(404)
+          .json({ status: 'failed', error: 'There is no user with this ID' });
       }
 
       const timeAvailable = provider.availability.some((t) => t === time);
@@ -45,22 +48,25 @@ class AppointementController {
         Number(new Date(`${date} ${time}`)) <= Number(new Date())
       ) {
         return res.status(400).json({
+          status: 'failed',
           error:
             'Date and Time are not available, Kindly select another available date and time',
         });
       }
       const appointment = await Appointment.create({
-        providerId,
-        userId,
+        doctor: providerId,
+        patient: userId,
         date,
         time,
       });
 
       if (!appointment) {
-        return res.status(500).json({ error: 'Server Error' });
+        return res
+          .status(500)
+          .json({ status: 'failed', error: 'Something went wrong.' });
       }
-      user.appointments = appointment._id;
-      provider.appointments = appointment._id;
+      user.appointments.push(appointment._id);
+      provider.appointments.push(appointment._id);
 
       provider.unavailability.push(time);
       const index = provider.availability.indexOf(time);
@@ -82,8 +88,8 @@ class AppointementController {
         await sendEmail('Appointment Time', 'exactTime', job, 1),
       ]);
 
-      // TODO: update records of both the provider and patient
-      //TODO:  update the appointment status
+      //TODO:  update appointment status to on-going when time appointment is sent
+      // TODO: update appointment to held upon completion
 
       return res.status(201).json({
         id: appointment._id,
@@ -102,7 +108,9 @@ class AppointementController {
       });
     } catch (error) {
       console.log(error);
-      return res.status(500).json({ error: 'Server error...' });
+      return res
+        .status(500)
+        .json({ status: 'failed', error: 'Something went wrong....' });
     }
   }
 
@@ -111,7 +119,7 @@ class AppointementController {
       const userId = req.user.id;
       let user = await User.findById(userId).exec();
       if (!user) {
-        return res.status(403).json({ error: 'Forbidden' });
+        return res.status(403).json({ status: 'failed', error: 'Forbidden' });
       }
 
       const validation = makeValidation((types) => ({
@@ -128,21 +136,34 @@ class AppointementController {
       const { date, time } = req.body;
       const { appointmentId } = req.params;
 
+      if (!appointmentId) {
+        return res
+          .status(400)
+          .json({ status: 'failed', error: 'Provide appointment ID' });
+      }
+
       const appointment = await Appointment.findById(appointmentId).exec();
+      console.log(appointment);
 
       const provider = await Provider.findById(appointment.doctor).exec();
       if (!provider) {
-        return res.status(404).json({ error: 'No provider with this ID' });
+        return res
+          .status(404)
+          .json({ status: 'failed', error: 'No provider with this ID' });
       }
 
       user = await User.findById(appointment.patient).exec();
       if (!user) {
-        return res.status(404).json({ error: 'No user with this ID' });
+        return res
+          .status(404)
+          .json({ status: 'failed', error: 'No user with this ID' });
       }
 
       const timeUnavailable = provider.unavailability.some((t) => t === time);
       if (!timeUnavailable) {
-        return res.status(400).json({ error: 'Invalid Time' });
+        return res
+          .status(400)
+          .json({ status: 'failed', error: 'Invalid Time' });
       }
 
       const job = {
@@ -164,13 +185,16 @@ class AppointementController {
       provider.unavailability.splice(index, 1);
       provider.save();
 
-      // TODO: update records of both the provider and patient
-      return res
-        .status(200)
-        .json({ message: 'Appointment successfully cancelled' });
+      // TODO: stop reminder and time appointment notification upon cancellation
+      return res.status(200).json({
+        status: 'success',
+        message: 'Appointment successfully cancelled',
+      });
     } catch (error) {
       console.log(error);
-      return res.status(500).json({ error: 'Server error...' });
+      return res
+        .status(500)
+        .json({ status: 'failed', error: 'Something went wrong....' });
     }
   }
 
@@ -190,12 +214,15 @@ class AppointementController {
       const appointments = await features.query;
 
       return res.status(200).json({
+        status: 'success',
         results: appointments.length,
         appointments,
       });
     } catch (error) {
       console.log(error);
-      return res.status(500).json({ error: 'Server Error' });
+      return res
+        .status(500)
+        .json({ status: 'failed', error: 'Something went wrong.' });
     }
   }
 }

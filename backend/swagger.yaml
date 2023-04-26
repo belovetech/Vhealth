@@ -578,9 +578,9 @@ paths:
               time:
                 type: string
             example:
-              providerId: 97c27771a5ba406d8e7ecea944285f3a
-              date: '2023-04-25'
-              time: '09:30'
+              providerId: 48894479e255494ebf9630df735f15ac
+              date: '2023-04-26'
+              time: '09:00'
 
       responses:
         401:
@@ -631,31 +631,36 @@ paths:
           schema:
             $ref: '#/definitions/ServerErrorResponse'
 
-  /appointments/cancel:
+  /appointments/cancel/{appointmentId}:
     post:
       tags:
         - Appointment
       summary: Cancle an appointment
-      operationId: canclepappointment
+      operationId: appointmentId
       security:
         - Bearer: []
       parameters:
+        - name: appointmentId
+          in: path
+          description: appointment ID
+          required: true
+          schema:
+            type: string
+          example:
+            id: d37514fef7c24e5b9011749dde35a455
         - in: body
           name: body
-          description: create a new appointment
+          description: date and time of the appointment
           required: true
           schema:
             type: object
             properties:
-              providerId:
-                type: string
               date:
                 type: string
               time:
                 type: string
             example:
-              providerId: c10762bca6d44da1abc8dd9a2b694e5f
-              date: '2023-04-25'
+              date: '2023-04-26'
               time: '09:30'
 
       responses:
