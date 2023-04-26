@@ -1,3 +1,7 @@
+/**
+ * Worker Service - It notifies if job is completed or failed
+ */
+
 const worker = require('./worker');
 
 worker.on('completed', (job) =>

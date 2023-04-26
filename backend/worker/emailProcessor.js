@@ -1,5 +1,5 @@
 /**
- * Job processor
+ * Job processor - Mailgun powered the email process
  */
 const path = require('path');
 const dotenv = require('dotenv');

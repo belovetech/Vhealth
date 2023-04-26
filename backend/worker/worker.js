@@ -1,3 +1,7 @@
+/**
+ * Background worker that processes the job in the queue
+ */
+
 const { Worker } = require('bullmq');
 const SendMail = require('./emailProcessor');
 
