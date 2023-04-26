@@ -10,7 +10,7 @@ class NotificationClient {
   }
 
   async enqueue(jobName, job, delay = undefined) {
-    await this.queue.add(jobName, job, { delay });
+    return await this.queue.add(jobName, job, { delay });
   }
 
   close() {

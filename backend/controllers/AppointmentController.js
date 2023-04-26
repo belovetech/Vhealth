@@ -143,7 +143,6 @@ class AppointementController {
       }
 
       const appointment = await Appointment.findById(appointmentId).exec();
-      console.log(appointment);
 
       const provider = await Provider.findById(appointment.doctor).exec();
       if (!provider) {
@@ -161,9 +160,17 @@ class AppointementController {
 
       const timeUnavailable = provider.unavailability.some((t) => t === time);
       if (!timeUnavailable) {
-        return res
-          .status(400)
-          .json({ status: 'failed', error: 'Invalid Time' });
+        return res.status(400).json({
+          status: 'failed',
+          error: 'No appointment with this Time was booked',
+        });
+      }
+
+      if (appointment.status === 'cancelled' || appointment.status === 'held') {
+        return res.status(400).json({
+          status: 'failed',
+          error: 'Appointment had been cancelled earlier',
+        });
       }
 
       const job = {

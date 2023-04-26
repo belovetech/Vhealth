@@ -42,7 +42,9 @@ module.exports = async (subject, template, data, dur) => {
   };
 
   const delay = calculateDelay(`${data.date} ${data.time}`, dur);
-  await notification.enqueue('email-message', job, delay);
+  const newJob = await notification.enqueue('email-message', job, delay);
+
+  console.info(`NEW JOB: ${newJob.data} ${newJob.id}`);
 
   console.info(`Enqueued an email sending to ${job.to}`);
   notification.close();
