@@ -17,15 +17,23 @@ module.exports = async (subject, template, data, dur) => {
   });
 
   // construct email template
-  const payload = {
-    firstName: data.firstName,
-    provider: data.provider,
-    date: data.date,
-    time:
-      Number(data.time.split(':')[0]) < 12
-        ? data.time + 'am'
-        : data.time + 'pm',
-  };
+  let payload;
+  if (template === 'reset') {
+    payload = {
+      firstName: data.firstName,
+      link: data.resetLink,
+    };
+  } else {
+    payload = {
+      firstName: data.firstName,
+      provider: data.provider,
+      date: data.date,
+      time:
+        Number(data.time.split(':')[0]) < 12
+          ? data.time + 'am'
+          : data.time + 'pm',
+    };
+  }
 
   const source = fs.readFileSync(
     path.join(__dirname, '../utils/template/' + template + '.handlebars'),
@@ -41,7 +49,7 @@ module.exports = async (subject, template, data, dur) => {
     html: compiledTemplate(payload),
   };
 
-  const delay = calculateDelay(`${data.date} ${data.time}`, dur);
+  const delay = calculateDelay(data?.date, data?.time, dur);
   const newJob = await notification.enqueue('email-message', job, delay);
 
   console.info(`NEW JOB: ${newJob.data} ${newJob.id}`);

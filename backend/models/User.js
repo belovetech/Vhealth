@@ -7,7 +7,6 @@ const validator = require('validator');
 const sha1 = require('sha1');
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
-const redisClient = require('../database/redis');
 
 /**
  * Check for a strict string value
@@ -76,12 +75,15 @@ const UserSchema = new mongoose.Schema({
   active: {
     type: Boolean,
     default: true,
+    select: false,
   },
+  passwordResetToken: String,
+  passwordResetExpires: Date,
   image: String,
 });
 
 UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password') || this.isNew) return next();
+  if (!this.isModified('password')) return next();
 
   this.password = sha1(this.password);
 
@@ -94,17 +96,20 @@ UserSchema.pre(/^find/, async function (next) {
   next();
 });
 
-// UserSchema.methods.forgetPasswordResetToken = async function () {
-//   const resetToken = crypto.randomBytes(25).toString('hex');
-//   const hashResetToken = crypto
-//     .createHash('sha256')
-//     .update(resetToken)
-//     .digest('hex');
+UserSchema.methods.forgetPasswordResetToken = async function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
 
-//   const key = uuidv4();
+  // add 10mins
+  this.passwordResetExpires = Date.now() + 600000;
 
-//   await redisClient.set(`resetToken_${key}`, hashResetToken, );
-// };
+  this.save({ validateBeforeSave: false });
+
+  return resetToken;
+};
 
 const User = mongoose.model('User', UserSchema);
 module.exports = User;

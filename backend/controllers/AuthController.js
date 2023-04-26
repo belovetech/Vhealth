@@ -1,15 +1,15 @@
 /**
  * Authentication Controller
  */
-const crypto = require('crypto');
-const sha1 = require('sha1');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const crypto = require('crypto');
 const redisClient = require('../database/redis');
 const generateJWToken = require('../utils/generateJWToken');
 const makeValidation = require('@withvoid/make-validation');
 const formatResponse = require('../utils/formatResponse');
 const sendEmail = require('../utils/sendEmail');
+const User = require('../models/User');
+const sha1 = require('sha1');
 
 class AuthController {
   static async signup(req, res, next) {
@@ -64,7 +64,6 @@ class AuthController {
   }
 
   static async login(req, res, next) {
-    const { email, password } = req.body;
     try {
       const validation = makeValidation((types) => ({
         payload: req.body,
@@ -78,30 +77,20 @@ class AuthController {
         return res.status(400).json({ ...validation });
       }
 
+      const { email, password } = req.body;
       let user = await User.findOne({ email }).exec();
       if (!user) {
         return res
           .status(400)
           .json({ status: 'failed', error: 'user not found' });
       }
-      user = await User.findOne({ email, password });
+      user = await User.findOne({ email, password: sha1(password) });
       if (!user) {
         return res
           .status(400)
           .json({ status: 'failed', error: 'Invalid login credentials' });
       }
-      const token = generateJWToken(user._id.toString());
-      await redisClient.set(`auth_${token}`, user._id.toString(), 60 * 60);
-
-      res.cookie('token', token, {
-        maxAge: 60 * 60,
-        httpOnly: true,
-        sameSite: 'none',
-      });
-      return res.status(200).send({
-        token,
-        user: formatResponse(user),
-      });
+      await generateJWToken(user, res);
     } catch (error) {
       console.log(error);
       return res
@@ -204,19 +193,123 @@ class AuthController {
 
   static async forgotPassword(req, res, next) {
     try {
-      const user = await User.findOne({ email: req.body.email });
+      const { email } = req.body;
+      const user = await User.findOne({ email });
 
       if (!user) {
         return res
           .status(404)
           .json({ status: 'failed', error: 'No User found' });
       }
-      const resetToken = crypto.randomBytes(32).toString('hex');
-      await redisClient.set(`Reset_${resetToken}`, user._id, 10 * 60 * 1000);
+      const resetToken = await user.forgetPasswordResetToken();
+
+      const job = {
+        firstName: user.firstName,
+        resetLink: `${process.env.BASE_URL}/auth/resetPassword/${resetToken}`,
+        email,
+      };
 
       await sendEmail('Reset Password', 'reset', job, 0);
+
+      return res.status(200).json({
+        status: 'success',
+        message: `Forget password token sent to ${email}`,
+      });
     } catch (error) {
       console.log(error);
+      return res
+        .status(500)
+        .json({ status: 'failed', error: 'Something went wrong....' });
+    }
+  }
+
+  static async resetPassword(req, res, next) {
+    try {
+      const hashedToken = crypto
+        .createHash('sha256')
+        .update(req.params.token)
+        .digest('hex');
+
+      console.log(hashedToken);
+      const user = await User.findOne({
+        passwordResetToken: hashedToken,
+        passwordResetExpires: { $gt: Date.now() },
+      });
+
+      if (!user) {
+        return res.status(404).json({
+          status: 'failed',
+          error: 'Token is invalid or has expired.',
+        });
+      }
+
+      const validation = makeValidation((types) => ({
+        payload: req.body,
+        checks: {
+          password: { type: types.string },
+          passwordConfirmation: { type: types.string },
+        },
+      }));
+      if (!validation.success) {
+        return res.status(400).json({ ...validation });
+      }
+
+      const { password, passwordConfirmation } = req.body;
+
+      user.password = password;
+      user.passwordConfirmation = passwordConfirmation;
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save();
+
+      await generateJWToken(user, res);
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ status: 'failed', error: 'Something went wrong....' });
+    }
+  }
+  static async updatePassword(req, res, next) {
+    try {
+      const validation = makeValidation((types) => ({
+        payload: req.body,
+        checks: {
+          passwordCurrent: { type: types.string },
+          password: { type: types.string },
+          passwordConfirmation: { type: types.string },
+        },
+      }));
+      if (!validation.success) {
+        return res.status(400).json({ ...validation });
+      }
+
+      const { passwordCurrent, password, passwordConfirmation } = req.body;
+
+      const user = await User.findOne({ email: currentPassword }).select(
+        '+password'
+      );
+
+      if (user.password !== hash1(passwordCurrent)) {
+        return res.status(401).json({
+          status: 'failed',
+          error: 'Your current password is incorrect',
+        });
+      }
+
+      user.password = password;
+      user.passwordConfirmation = passwordConfirmation;
+      await user.save();
+
+      await generateJWToken(user, res);
+    } catch (error) {
+      console.log(error);
+      if (error.errors.passwordConfirmation) {
+        return res.status(400).json({
+          status: 'failed',
+          error: error.errors.passwordConfirmation.message,
+        });
+      }
       return res
         .status(500)
         .json({ status: 'failed', error: 'Something went wrong....' });

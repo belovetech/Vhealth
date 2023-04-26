@@ -4,8 +4,10 @@
  * @param {number} duration
  * @returns - delay in milliseconds
  */
-module.exports = (date, duration) => {
-  const targetTime = new Date(date);
+module.exports = (date, time, duration) => {
+  if (date === undefined || time === undefined) return 0;
+  const dateAndTime = `${data?.date} ${data?.time}`;
+  const targetTime = new Date(dateAndTime);
   let delay = 0;
   if (duration === 10) {
     delay = Number(targetTime) - 600000 - Number(new Date());
