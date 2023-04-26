@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 
 const DB = process.env.DATABASE_URL;
 
+/**
+ * Connect to MongoDB server
+ */
 class DbClient {
   constructor() {
     mongoose.connect(DB, {
